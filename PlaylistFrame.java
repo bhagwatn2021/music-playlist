@@ -41,7 +41,7 @@ public class PlaylistFrame extends JFrame
 		cPane.add(BorderLayout.EAST, list);
 		
 		// filler message that will eventually be received over network
-		received = new JLabel("Julia is listening to a song");
+		received = new JLabel("");
 		
 		
 		// button to play ALL the songs in the playlist
@@ -51,6 +51,12 @@ public class PlaylistFrame extends JFrame
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
 				currSong.song.stop();
+				
+				TextWindowServer win = new TextWindowServer();
+				win.go();
+				Thread t = new Thread(win);
+				t.start();
+				
 				while (currSong != null) {
 					// change current song info
 					setSongInfo(playlist);
