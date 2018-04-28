@@ -200,4 +200,9 @@ public class PlaylistFrame extends JFrame
 																			+ "\nAlbum: " + currSong.song.getAlbum());
 		}
 	}
+	
+	public JTextArea getSongInfo ()
+	{
+		return songInfo;
+	}
 }
