@@ -196,13 +196,14 @@ public class PlaylistFrame extends JFrame
 			// go back to the beginning
 			currSong = playlist.head;
 			// set the song info 
-			songInfo.setText("Current Song: " + currSong.song.getTitle() +"\nArtist: " + currSong.song.getArtist() 
-																			+ "\nAlbum: " + currSong.song.getAlbum());
+			songInfo.setText("Current Song: " + currSong.song.getTitle() +"\nArtist: " + currSong.song.getArtist() 																	+ "\nAlbum: " + currSong.song.getAlbum());
 		}
+		// message to be used in server (sent back and forth)
+		songMessage = currSong.song.getTitle() + " by " + currSong.song.getArtist();
 	}
 	
-	public JTextArea getSongInfo ()
+	public String getSongMessage ()
 	{
-		return songInfo;
+		return songMessage;
 	}
 }
