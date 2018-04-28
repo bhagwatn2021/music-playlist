@@ -16,6 +16,7 @@ public class PlaylistFrame extends JFrame
 	private JPanel playButtons;
 	private JTextArea songInfo;
 	private ListNode currSong;
+	private String songMessage;
 	
 	void go (int width, int height, Playlist playlist, JTextArea list)
 	{
@@ -118,7 +119,7 @@ public class PlaylistFrame extends JFrame
 		// create the action listener
 		PlayRandomAL playRandomAL = new PlayRandomAL();
 		// add Action Listener to play button
-		playNext.addActionListener(playRandomAL);
+		playRandom.addActionListener(playRandomAL);
 		
 		
 		// button to go back to the Add Songs interface
@@ -175,35 +176,41 @@ public class PlaylistFrame extends JFrame
 	
 	public void playSong (Playlist playlist)
 	{
-		// if not at the end
-		if (currSong!=null) {
-			// play the song
-			currSong.song.play();
-		}
-		// else if the end has been reached
-		else {
+		// if at the end
+		if (currSong==null) {
 			// go back to the beginning
 			currSong = playlist.head;
 			// play that
 			currSong.song.play();
 		}
+		// else if not at the end
+		else {
+			// play the current song
+		}
 	}
 	
 	public void setSongInfo (Playlist playlist) 
 	{
-		// if not at the end
-		if (currSong!=null) {
-			// set the song info 
-			songInfo.setText("Current Song: " + currSong.song.getTitle() +"\nArtist: " + currSong.song.getArtist() 
-																			+ "\nAlbum: " + currSong.song.getAlbum());
-		}
-		// else if the end has been reached
-		else {
+		// if the end has been reached
+		if (currSong==null) {
 			// go back to the beginning
 			currSong = playlist.head;
 			// set the song info 
 			songInfo.setText("Current Song: " + currSong.song.getTitle() +"\nArtist: " + currSong.song.getArtist() 
 																			+ "\nAlbum: " + currSong.song.getAlbum());
 		}
+		// else if not at the end
+		else {
+			// set the song info 
+			songInfo.setText("Current Song: " + currSong.song.getTitle() +"\nArtist: " + currSong.song.getArtist() 
+																			+ "\nAlbum: " + currSong.song.getAlbum());
+		}
+		// message to be used in server (sent back and forth)
+		songMessage = currSong.song.getTitle() + " by " + currSong.song.getArtist();
+	}
+	
+	public String getSongMessage ()
+	{
+		return songMessage;
 	}
 }
