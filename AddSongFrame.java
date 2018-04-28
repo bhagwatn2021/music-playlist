@@ -14,6 +14,8 @@ public class AddSongFrame extends JFrame
 	private JTextField albumName;
 	private JTextField songfilePath;
 	private JTextField coverartPath; 
+	private JTextField inputUsername;
+	private String username;
 	
 	// buttons
 	private JButton addSong;
@@ -41,6 +43,7 @@ public class AddSongFrame extends JFrame
 		cPane.setLayout(new BorderLayout());
 		
 		// put instructions in each JTexField
+		inputUsername = new JTextField("Enter your username here");
 		songTitle = new JTextField("Enter the song title here");
 		artistName = new JTextField("Enter the artist name here");
 		albumName = new JTextField("Enter the album name here");
@@ -52,6 +55,7 @@ public class AddSongFrame extends JFrame
 		JPanel inputs = new JPanel();
 		inputs.setLayout(new BoxLayout(inputs,BoxLayout.Y_AXIS));
 		// add each JTextField to the panel
+		inputs.add(inputUsername);
 		inputs.add(songTitle);
 		inputs.add(artistName);
 		inputs.add(albumName);
@@ -114,12 +118,19 @@ public class AddSongFrame extends JFrame
 		// add this panel to the content pane
 		cPane.add(BorderLayout.SOUTH,buttons);
 		
+		// get username input
+		username = inputUsername.getText();
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// make visible
 		this.setVisible(true);
+	}
+	
+	public String getUsername()
+	{
+		return username;
 	}
 	
 	public static void main (String[] args) 
