@@ -209,6 +209,11 @@ public class PlaylistFrame extends JFrame
 		songMessage = currSong.song.getTitle() + " by " + currSong.song.getArtist();
 	}
 	
+	public ListNode getCurrentSong()
+	{
+		return currSong;
+	}
+	
 	public String getSongMessage ()
 	{
 		return songMessage;
