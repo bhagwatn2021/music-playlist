@@ -1,17 +1,10 @@
-/* Authors: Julia Bristow and Neel Bhagwat
- * Song class			
- * Purpose: to make a song class that stores cover art, title, artist, album, and songData.
- * Plays the specified song. 
- * 
- */
+
 
 import java.awt.*;
-import javax.imageio.*;
 import java.io.*;
 import jm.util.*;
-import java.awt.image.*;
 
-public class SongInfo
+public class Song
 {
 	private String title;
 	private String artist;
@@ -19,10 +12,10 @@ public class SongInfo
 	private String songPath;
 	private float[] songData;
 	private String imagePath;
-	private BufferedImage image;
+	private Image image;
 	
 	// constructor
-	public SongInfo (String title, String artist, String album, String songPath, String imagePath)
+	public Song (String title, String artist, String album, String songPath, String imagePath)
 	{
 		this.title = title;
 		this.artist = artist;
@@ -30,18 +23,9 @@ public class SongInfo
 		this.songPath = songPath;
 		this.imagePath = imagePath;
 		this.songData= Read.audio(songPath);
-	// From Stack Overflow: @Tafari
-	// Creates a BufferedImage based on the given file path for an image
-	try 
-		{
-	    this.image = ImageIO.read(new File(imagePath)); 
-		} 
-		catch (IOException e) 
-		{
-		    e.printStackTrace();
-		} 
+		this.image = Toolkit.getDefaultToolkit().getImage(imagePath);
 	}
-	
+
 	// accessors
 	public void setTitle(String title) {
 		this.title = title;
@@ -91,7 +75,7 @@ public class SongInfo
 		return this.imagePath;
 	}
 
-	public void setImage(BufferedImage image) {
+	public void setImage(Image image) {
 		this.image = image;
 	}
 	
@@ -102,5 +86,9 @@ public class SongInfo
 	public void play() {
 		Write.audio(this.songData, "mix.wav",2, 44100, 16);
 		Play.au("mix.wav", false);  
+	}
+	
+	public void stop() {
+		Play.stopAudio();
 	}
 }
