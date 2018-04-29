@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import javax.swing.*;
 
-public class TextWindowServer extends JPanel implements ActionListener, Runnable{
+public class TextWindowServer extends JPanel implements Runnable, ActionListener{
 	JTextField text;
 	InputStreamReader isr;
 	OutputStreamWriter outWriter;
@@ -18,6 +18,8 @@ public class TextWindowServer extends JPanel implements ActionListener, Runnable
 	
 	public void go()
 	{
+		text = new JTextField();
+		text.addActionListener(this);
 		setUpNetworking();	
 	}
 	public void setUpNetworking()
@@ -46,6 +48,17 @@ public class TextWindowServer extends JPanel implements ActionListener, Runnable
 			{
 				System.out.println("Receiving " + reader.readLine());
 				text.setText(reader.readLine());
+
+				if(connected)
+				{
+					System.out.println("Sending " + text.getText());
+					writer.println(text.getText());
+					writer.flush();
+				}
+				else
+				{
+					System.out.println("The server has not established a connection yet.");
+				}
 			}
 		}
 		catch(IOException e)
@@ -53,17 +66,30 @@ public class TextWindowServer extends JPanel implements ActionListener, Runnable
 			e.printStackTrace();
 		}
 	}
-	public void actionPerformed(ActionEvent e)
+	public void actionPerformed(ActionEvent a)
 	{
-		if(connected)
+		try
 		{
-			System.out.println("Sending " + text.getText());
-			writer.println(text.getText());
-			writer.flush();
+			while(reader.readLine() != null)
+			{
+				System.out.println("Receiving " + reader.readLine());
+				text.setText(reader.readLine());
+
+				if(connected)
+				{
+					System.out.println("Sending " + text.getText());
+					writer.println(text.getText());
+					writer.flush();
+				}
+				else
+				{
+					System.out.println("The server has not established a connection yet.");
+				}
+			}
 		}
-		else
+		catch(IOException e)
 		{
-			System.out.println("The server has not established a connection yet.");
+			e.printStackTrace();
 		}
 	}
 	public static void main(String[] args)
