@@ -23,7 +23,7 @@ public class Song
 		this.songPath = songPath;
 		this.imagePath = imagePath;
 		this.songData= Read.audio(songPath);
-		this.image = Toolkit.getDefaultToolkit().getImage(imagePath);
+		this.image = new ImageIcon(imagePath, "album").getImage();
 	}
 
 	// accessors
