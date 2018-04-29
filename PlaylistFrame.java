@@ -114,6 +114,7 @@ public class PlaylistFrame extends JFrame
 		// filler message that will eventually be received over network
 		TextWindow win = new TextWindow();
 		
+		JPanel songPanel = new JPanel();
 		// button to play ALL the songs in the playlist
 		playAll = new JButton("Play All");
 		// local class definition for the Action Listener for play
@@ -149,16 +150,19 @@ public class PlaylistFrame extends JFrame
 		class PlayNextAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
-		//		currSong.song.stop();
+				currSong.song.stop();
 				// move currSong to the next song
 				currSong = currSong.next;
-				// change current song info
-				setSongInfo(playlist);
 				
 				win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 				Thread t = new Thread(win);
 				t.start();
 				
+				// change current song info
+				songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
+				songPanel.add(songInfo);
+				songPanel.add(win);
+				setSongInfo(playlist);
 				// change current image
 				cover = currSong.song.getImage();
 				repaint();
@@ -191,8 +195,12 @@ public class PlaylistFrame extends JFrame
 				win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 				Thread t = new Thread(win);
 				t.start();
+				
 				// change current song info
 				setSongInfo(playlist);
+				songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
+				songPanel.add(songInfo);
+				songPanel.add(win);
 				// change current image
 				cover = currSong.song.getImage();
 				repaint();
@@ -229,11 +237,6 @@ public class PlaylistFrame extends JFrame
 		playButtons.add(playAll);
 		playButtons.add(playNext);
 		playButtons.add(playRandom);
-		
-		JPanel songPanel = new JPanel();
-		songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
-		songPanel.add(songInfo);
-		songPanel.add(win);
 		
 		// new panel to put all buttons and message at the bottom
 		south = new JPanel();
