@@ -78,41 +78,52 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 	
 }
 
+
 public class PlaylistFrame extends JFrame
 {
 	private JButton goToAdd;
 	private JButton playAll;
 	private JButton playNext;
 	private JButton playRandom;
+	private JLabel received;
 	private JPanel south;
 	private JPanel playButtons;
 	private JTextArea songInfo;
 	private ListNode currSong;
 	private String songMessage;
-	private Image cover;
-	private String username;
+	private AlbumImage cover;
 	
-	void go (int width, int height, Playlist playlist, JTextArea list, String username)
+	void go (int width, int height, Playlist playlist, JTextArea list)
 	{
 		// set up initial frame
 		this.setTitle("Music Player");
 		this.setResizable(true);
 		this.setSize(width, height);
-		this.username = username;
+		
 		// start current song at the front of playlist
 		currSong = playlist.head;
 		// initialize songInfo
 		songInfo = new JTextArea();
+		// show the first song information
+		setSongInfo(playlist);
+		// show the first song's album cover
+		cover = new AlbumImage(currSong.song);
+		// play the first song
+		currSong.song.play();
 		
 		// get the content pane
 		Container cPane = this.getContentPane();
 		cPane.setLayout(new BorderLayout());
+		
+		// add the album cover to the content pane
+		cPane.add(BorderLayout.CENTER,cover);
 				
 		// show the playlist on the right side of the frame
 		cPane.add(BorderLayout.EAST, list);
 		
 		// filler message that will eventually be received over network
-		TextWindow win = new TextWindow();
+		received = new JLabel("Julia is listening to a song");
+		
 		
 		JPanel songPanel = new JPanel();
 		// button to play ALL the songs in the playlist
@@ -121,16 +132,17 @@ public class PlaylistFrame extends JFrame
 		class PlayAllAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
-		//		currSong.song.stop();
+				currSong.song.stop();
 				while (currSong != null) {
 					// change current song info
 					setSongInfo(playlist);
-					win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
-					Thread t = new Thread(win);
-					t.start();
+					// remove the current image
+					cPane.remove(cover);
 					// change current image
-					cover = currSong.song.getImage();
+					cover = new AlbumImage(currSong.song);
 					repaint();
+					// add new image to panel
+					cPane.add(BorderLayout.CENTER,cover);
 					// play the song in currNode
 					currSong.song.play();
 					// advance currSong
@@ -153,6 +165,7 @@ public class PlaylistFrame extends JFrame
 				currSong.song.stop();
 				// move currSong to the next song
 				currSong = currSong.next;
+<<<<<<< HEAD
 				
 				win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 				Thread t = new Thread(win);
@@ -163,11 +176,18 @@ public class PlaylistFrame extends JFrame
 				songPanel.add(songInfo);
 				songPanel.add(win);
 				setSongInfo(playlist);
+=======
+				// change current song info
+				setSongInfo(playlist);
+				// remove the current image
+				cPane.remove(cover);
+>>>>>>> 840c8045a7cc94f9845dc465a78557f7ec278cbe
 				// change current image
-				cover = currSong.song.getImage();
+				cover = new AlbumImage(currSong.song);
 				repaint();
+				// add picture to the panel
+				cPane.add(BorderLayout.CENTER,cover);
 				// play the song
-				currSong.song.play();
 				playSong(playlist);
 			}
 		}
@@ -183,7 +203,7 @@ public class PlaylistFrame extends JFrame
 		class PlayRandomAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
-		//		currSong.song.stop();
+				currSong.song.stop();
 				// pick a random number from 1 to # of songs
 				int random = (int)((Math.random()*playlist.size)+1);
 				// move currSong to the first node
@@ -192,6 +212,7 @@ public class PlaylistFrame extends JFrame
 				for (int i=0; i<random; i++) {
 					currSong = currSong.next;
 				}
+<<<<<<< HEAD
 				win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 				Thread t = new Thread(win);
 				t.start();
@@ -201,11 +222,19 @@ public class PlaylistFrame extends JFrame
 				songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
 				songPanel.add(songInfo);
 				songPanel.add(win);
+=======
+				// change current song info
+				setSongInfo(playlist);
+				// remove the current image
+				cPane.remove(cover);
+>>>>>>> 840c8045a7cc94f9845dc465a78557f7ec278cbe
 				// change current image
-				cover = currSong.song.getImage();
+				cover = new AlbumImage(currSong.song);
 				repaint();
+				// add picture to the panel
+				cPane.add(BorderLayout.CENTER,cover);
 				// play the song
-				currSong.song.play();
+				playSong(playlist);
 			}
 		}
 		// create the action listener
@@ -242,6 +271,8 @@ public class PlaylistFrame extends JFrame
 		south = new JPanel();
 		// give the south panel a Box Layout
 		south.setLayout(new BoxLayout(south,BoxLayout.Y_AXIS));
+		// add message to south panel
+		south.add(received);
 		// add play buttons to south panel
 		south.add(playButtons);
 		// add "go back" button to south panel
@@ -250,11 +281,7 @@ public class PlaylistFrame extends JFrame
 		cPane.add(BorderLayout.SOUTH, south);
 		
 		// add the song information to the content pane
-		cPane.add(BorderLayout.NORTH,songPanel);
-		
-		// put image in a panel
-		JPanel pic = new JPanel();
-		//****************************************************************************************
+		cPane.add(BorderLayout.NORTH,songInfo);
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -296,12 +323,6 @@ public class PlaylistFrame extends JFrame
 		}
 		// message to be used in server (sent back and forth)
 		songMessage = currSong.song.getTitle() + " by " + currSong.song.getArtist();
-	}
-	
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponents(g);
-		g.drawImage(cover, 0,0, this);
 	}
 	
 	public ListNode getCurrentSong()
