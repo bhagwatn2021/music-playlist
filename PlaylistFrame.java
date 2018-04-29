@@ -23,13 +23,14 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 	private String title;
 	private String artist; 
 	private String username;
-
 	
 	public void go(String username, String title, String artist)
 	{
 		setUpNetworking();
+		this.username = username;
+		this.title = title;
+		this.artist = artist;
 		text = new JTextField(username + "," + title + "," + artist);
-		this.add(text);
 	}
 	
 	public void paintComponent(Graphics g)
