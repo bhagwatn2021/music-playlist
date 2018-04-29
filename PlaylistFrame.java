@@ -17,6 +17,7 @@ public class PlaylistFrame extends JFrame
 	private JTextArea songInfo;
 	private ListNode currSong;
 	private String songMessage;
+	private Image cover;
 	
 	void go (int width, int height, Playlist playlist, JTextArea list)
 	{
@@ -31,6 +32,9 @@ public class PlaylistFrame extends JFrame
 		songInfo = new JTextArea();
 		// show the first song information
 		setSongInfo(playlist);
+		// show the first song's album cover
+		cover = currSong.song.getImage();
+		repaint();
 		// play the first song
 		currSong.song.play();
 		
@@ -42,7 +46,7 @@ public class PlaylistFrame extends JFrame
 		cPane.add(BorderLayout.EAST, list);
 		
 		// filler message that will eventually be received over network
-		received = new JLabel("");
+		received = new JLabel("Julia is listening to a song");
 		
 		
 		// button to play ALL the songs in the playlist
@@ -52,15 +56,12 @@ public class PlaylistFrame extends JFrame
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
 				currSong.song.stop();
-				
-				TextWindowServer win = new TextWindowServer();
-				win.go();
-				Thread t = new Thread(win);
-				t.start();
-				
 				while (currSong != null) {
 					// change current song info
 					setSongInfo(playlist);
+					// change current image
+					cover = currSong.song.getImage();
+					repaint();
 					// play the song in currNode
 					currSong.song.play();
 					// advance currSong
@@ -85,6 +86,9 @@ public class PlaylistFrame extends JFrame
 				currSong = currSong.next;
 				// change current song info
 				setSongInfo(playlist);
+				// change current image
+				cover = currSong.song.getImage();
+				repaint();
 				// play the song
 				playSong(playlist);
 			}
@@ -112,6 +116,9 @@ public class PlaylistFrame extends JFrame
 				}
 				// change current song info
 				setSongInfo(playlist);
+				// change current image
+				cover = currSong.song.getImage();
+				repaint();
 				// play the song
 				playSong(playlist);
 			}
@@ -162,10 +169,9 @@ public class PlaylistFrame extends JFrame
 		// add the song information to the content pane
 		cPane.add(BorderLayout.NORTH,songInfo);
 		
-		// put image in center
-		// image code not ready yet, text instead						*****
-		JTextArea coverArt = new JTextArea("COVER ART HERE");
-		cPane.add(coverArt);
+		// put image in a panel
+		JPanel pic = new JPanel();
+		//****************************************************************************************
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -207,6 +213,11 @@ public class PlaylistFrame extends JFrame
 		}
 		// message to be used in server (sent back and forth)
 		songMessage = currSong.song.getTitle() + " by " + currSong.song.getArtist();
+	}
+	
+	public void paintComponent(Graphics g)
+	{
+		g.drawImage(cover, 0,0, this);
 	}
 	
 	public ListNode getCurrentSong()
