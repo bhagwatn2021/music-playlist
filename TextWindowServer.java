@@ -5,9 +5,8 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import javax.swing.*;
 
-public class TextWindowServer extends JFrame implements ActionListener, Runnable{
+public class TextWindowServer extends JPanel implements ActionListener, Runnable{
 	JTextField text;
-	JTextArea textArea;
 	InputStreamReader isr;
 	OutputStreamWriter outWriter;
 	BufferedReader reader;
@@ -15,19 +14,11 @@ public class TextWindowServer extends JFrame implements ActionListener, Runnable
 	Socket clientConn;
 	ServerSocket serverSock;
 	boolean connected = false;
+	String message;
+	
 	public void go()
 	{
-		text= new JTextField("Enter text here");
-		textArea = new JTextArea(10,20);
-		text.addActionListener(this);
-		this.getContentPane().add(BorderLayout.SOUTH, text);
-		this.getContentPane().add(BorderLayout.CENTER, textArea);
-		this.setSize(600, 600);
-		this.setTitle("Text Window Server");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setVisible(true);
-		setUpNetworking();
-			
+		setUpNetworking();	
 	}
 	public void setUpNetworking()
 	{
@@ -40,7 +31,6 @@ public class TextWindowServer extends JFrame implements ActionListener, Runnable
 			reader = new BufferedReader(isr);
 			outWriter = new OutputStreamWriter(clientConn.getOutputStream());
 			writer = new PrintWriter(outWriter);
-			writer.println("This is a message from the server!!");
 			connected = true;
 		}
 		catch (IOException e)
@@ -52,11 +42,9 @@ public class TextWindowServer extends JFrame implements ActionListener, Runnable
 	{
 		try
 		{
-			String albumInfo=reader.readLine();
-			while(albumInfo!= null)
+			while(reader.readLine() != null)
 			{
-				textArea.append(albumInfo+"\n");
-				albumInfo=reader.readLine();
+				text.setText(reader.readLine());
 			}
 		}
 		catch(IOException e)

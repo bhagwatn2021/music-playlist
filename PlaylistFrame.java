@@ -4,6 +4,74 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+class TextWindow extends JPanel implements ActionListener, Runnable
+{
+	JTextField text;
+	Socket sock;
+	InputStreamReader isr;
+	OutputStreamWriter outWriter;
+	BufferedReader reader;
+	PrintWriter writer;
+	String[] songData; 
+	private String title;
+	private String artist; 
+	private String username;
+
+	
+	public void go(String username, String title, String artist)
+	{
+		setUpNetworking();
+		text = new JTextField(username + "," + title + "," + artist);
+		this.add(text);
+	}
+	
+	public void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+		g.drawString(username +" is listening to " + title + " by " +  artist, 10, 20);
+	}
+	
+	public void setUpNetworking()
+	{
+		try
+		{
+			sock = new Socket("127.0.0.1",8000);
+			isr = new InputStreamReader(sock.getInputStream());
+			reader = new BufferedReader(isr);
+			writer = new PrintWriter(sock.getOutputStream());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		try {
+			songData =reader.readLine().split(" ",3);
+			while(reader.readLine() != null){
+				this.username = songData[0];
+				this.title = songData[1];
+				this.artist = songData[2];
+				songData = reader.readLine().split(",", 3);
+			}
+		} catch(IOException e) {}
+	}
+	
+	public void actionPerformed(ActionEvent e)
+	{
+		writer.println(text.getText());
+		writer.flush();
+	}
+	
+}
 
 public class PlaylistFrame extends JFrame
 {
@@ -11,21 +79,21 @@ public class PlaylistFrame extends JFrame
 	private JButton playAll;
 	private JButton playNext;
 	private JButton playRandom;
-	private JLabel received;
 	private JPanel south;
 	private JPanel playButtons;
 	private JTextArea songInfo;
 	private ListNode currSong;
 	private String songMessage;
 	private Image cover;
+	private String username;
 	
-	void go (int width, int height, Playlist playlist, JTextArea list)
+	void go (int width, int height, Playlist playlist, JTextArea list, String username)
 	{
 		// set up initial frame
 		this.setTitle("Music Player");
 		this.setResizable(true);
 		this.setSize(width, height);
-		
+		this.username = username;
 		// start current song at the front of playlist
 		currSong = playlist.head;
 		// initialize songInfo
@@ -46,8 +114,7 @@ public class PlaylistFrame extends JFrame
 		cPane.add(BorderLayout.EAST, list);
 		
 		// filler message that will eventually be received over network
-		received = new JLabel("Julia is listening to a song");
-		
+		TextWindow win = new TextWindow();
 		
 		// button to play ALL the songs in the playlist
 		playAll = new JButton("Play All");
@@ -86,6 +153,11 @@ public class PlaylistFrame extends JFrame
 				currSong = currSong.next;
 				// change current song info
 				setSongInfo(playlist);
+				
+				win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+				Thread t = new Thread(win);
+				t.start();
+				
 				// change current image
 				cover = currSong.song.getImage();
 				repaint();
@@ -153,12 +225,15 @@ public class PlaylistFrame extends JFrame
 		playButtons.add(playNext);
 		playButtons.add(playRandom);
 		
+		JPanel songPanel = new JPanel();
+		songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
+		songPanel.add(songInfo);
+		songPanel.add(win);
+		
 		// new panel to put all buttons and message at the bottom
 		south = new JPanel();
 		// give the south panel a Box Layout
 		south.setLayout(new BoxLayout(south,BoxLayout.Y_AXIS));
-		// add message to south panel
-		south.add(received);
 		// add play buttons to south panel
 		south.add(playButtons);
 		// add "go back" button to south panel
@@ -167,7 +242,7 @@ public class PlaylistFrame extends JFrame
 		cPane.add(BorderLayout.SOUTH, south);
 		
 		// add the song information to the content pane
-		cPane.add(BorderLayout.NORTH,songInfo);
+		cPane.add(BorderLayout.NORTH,songPanel);
 		
 		// put image in a panel
 		JPanel pic = new JPanel();
@@ -217,6 +292,7 @@ public class PlaylistFrame extends JFrame
 	
 	public void paintComponent(Graphics g)
 	{
+		super.paintComponents(g);
 		g.drawImage(cover, 0,0, this);
 	}
 	

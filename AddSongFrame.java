@@ -78,6 +78,8 @@ public class AddSongFrame extends JFrame
 				String album = albumName.getText();
 				String songPath = songfilePath.getText();
 				String artPath = coverartPath.getText();
+				// get username input
+				username = inputUsername.getText();
 				// make a new Song object
 				Song newSong = new Song(title,artist,album,songPath,artPath);
 				// add song to playlist
@@ -102,7 +104,7 @@ public class AddSongFrame extends JFrame
 			public void actionPerformed (ActionEvent e) {
 				// make a new frame that shows the music info
 				PlaylistFrame musicFrame = new PlaylistFrame();
-				musicFrame.go(500,500,playlist,songList);
+				musicFrame.go(500,500,playlist,songList,username);
 			}
 		} // end of local class goToPlaylistAL
 		
@@ -117,9 +119,6 @@ public class AddSongFrame extends JFrame
 		buttons.add(goToPlaylist);
 		// add this panel to the content pane
 		cPane.add(BorderLayout.SOUTH,buttons);
-		
-		// get username input
-		username = inputUsername.getText();
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
