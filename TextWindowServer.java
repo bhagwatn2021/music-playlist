@@ -44,6 +44,7 @@ public class TextWindowServer extends JPanel implements ActionListener, Runnable
 		{
 			while(reader.readLine() != null)
 			{
+				System.out.println("Receiving " + reader.readLine());
 				text.setText(reader.readLine());
 			}
 		}
@@ -56,6 +57,7 @@ public class TextWindowServer extends JPanel implements ActionListener, Runnable
 	{
 		if(connected)
 		{
+			System.out.println("Sending " + text.getText());
 			writer.println(text.getText());
 			writer.flush();
 		}

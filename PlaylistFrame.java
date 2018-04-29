@@ -14,6 +14,7 @@ import java.net.Socket;
 class TextWindow extends JPanel implements ActionListener, Runnable
 {
 	JTextField text;
+	JTextArea textArea;
 	Socket sock;
 	InputStreamReader isr;
 	OutputStreamWriter outWriter;
@@ -62,6 +63,9 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 				this.title = songData[1];
 				this.artist = songData[2];
 				songData = reader.readLine().split(",", 3);
+				this.textArea.setText(username +" is listening to " + title + " by " +  artist);
+				this.add(textArea);
+				repaint();
 			}
 		} catch(IOException e) {}
 	}
@@ -99,13 +103,6 @@ public class PlaylistFrame extends JFrame
 		currSong = playlist.head;
 		// initialize songInfo
 		songInfo = new JTextArea();
-		// show the first song information
-		setSongInfo(playlist);
-		// show the first song's album cover
-		cover = currSong.song.getImage();
-		repaint();
-		// play the first song
-		currSong.song.play();
 		
 		// get the content pane
 		Container cPane = this.getContentPane();
@@ -123,10 +120,13 @@ public class PlaylistFrame extends JFrame
 		class PlayAllAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
-				currSong.song.stop();
+		//		currSong.song.stop();
 				while (currSong != null) {
 					// change current song info
 					setSongInfo(playlist);
+					win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+					Thread t = new Thread(win);
+					t.start();
 					// change current image
 					cover = currSong.song.getImage();
 					repaint();
@@ -149,7 +149,7 @@ public class PlaylistFrame extends JFrame
 		class PlayNextAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
-				currSong.song.stop();
+		//		currSong.song.stop();
 				// move currSong to the next song
 				currSong = currSong.next;
 				// change current song info
@@ -163,6 +163,7 @@ public class PlaylistFrame extends JFrame
 				cover = currSong.song.getImage();
 				repaint();
 				// play the song
+				currSong.song.play();
 				playSong(playlist);
 			}
 		}
@@ -178,7 +179,7 @@ public class PlaylistFrame extends JFrame
 		class PlayRandomAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
 				// stop playing the current song
-				currSong.song.stop();
+		//		currSong.song.stop();
 				// pick a random number from 1 to # of songs
 				int random = (int)((Math.random()*playlist.size)+1);
 				// move currSong to the first node
@@ -187,13 +188,16 @@ public class PlaylistFrame extends JFrame
 				for (int i=0; i<random; i++) {
 					currSong = currSong.next;
 				}
+				win.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+				Thread t = new Thread(win);
+				t.start();
 				// change current song info
 				setSongInfo(playlist);
 				// change current image
 				cover = currSong.song.getImage();
 				repaint();
 				// play the song
-				playSong(playlist);
+				currSong.song.play();
 			}
 		}
 		// create the action listener
