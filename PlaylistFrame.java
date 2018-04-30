@@ -108,14 +108,9 @@ class TextWindow extends JLabel implements ActionListener, Runnable
 
 public class PlaylistFrame extends JFrame
 {
-	private JButton goToAdd;
-	private JButton playAll;
-	private JButton playNext;
-	private JButton playRandom;
-	private JLabel received;
-	private JPanel south;
-	private JPanel playButtons;
-	private JLabel songInfo;
+	private JButton goToAdd,playAll, playNext, playRandom;
+	private JLabel received, songInfo;
+	private JPanel south, playButtons;
 	private ListNode currSong;
 	private String songMessage;
 	private AlbumImage cover;
@@ -332,7 +327,7 @@ public class PlaylistFrame extends JFrame
 		playButtons.add(playAll);
 		playButtons.add(playNext);
 		playButtons.add(playRandom);
-		
+		playButtons.add(goToAdd);
 		// new panel to put all buttons and message at the bottom
 		south = new JPanel();
 		// give the south panel a Box Layout
@@ -340,13 +335,12 @@ public class PlaylistFrame extends JFrame
 		// add play buttons to south panel
 		south.add(playButtons);
 		// add "go back" button to south panel
-		south.add(goToAdd);
-		south.add(songPanel);
+
 		// add panel with the message and button to the South area
 		cPane.add(BorderLayout.SOUTH, south);
 		
 		// add the song information to the content pane
-		cPane.add(BorderLayout.NORTH,songInfo);
+		cPane.add(BorderLayout.NORTH,songPanel);
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
