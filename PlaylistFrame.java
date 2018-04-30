@@ -1,18 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.awt.event.*;
+import java.io.*;
+import java.net.*;
 
 class TextWindow extends JLabel implements Runnable
 {
 	//gets input from playlist
-	String send;
+	String sendSong;
 	//gets output for user
 	JTextArea textArea;
 	//connect to server
@@ -46,10 +41,11 @@ class TextWindow extends JLabel implements Runnable
 		this.sendTitle = title;
 		this.sendArtist = artist;
 		//initialize the textfield to write to server and give it an actionlistener to look for input
-		send = this.sendUsername + "," + this.sendTitle + "," + this.sendArtist;
+		sendSong = this.sendUsername + "," + this.sendTitle + "," + this.sendArtist;
 		// make visible
 		this.setVisible(true);
-		send(send);
+		System.out.println(sendSong);
+		send(sendSong);
 	}
 	
 	public void setUpNetworking()
@@ -57,7 +53,7 @@ class TextWindow extends JLabel implements Runnable
 		try
 		{
 			//initialize the socket
-			sock = new Socket("127.0.0.1",3000);
+			sock = new Socket(InetAddress.getLocalHost(),3000);
 			//initialize the from the server
 			isr = new InputStreamReader(sock.getInputStream());
 			reader = new BufferedReader(isr);
@@ -97,6 +93,7 @@ class TextWindow extends JLabel implements Runnable
 	public void send(String message)
 	{
 		//if input given, write output to server
+		System.out.println("Sending to server: " + sendSong);
 		writer.println(message);
 		writer.flush();
 	}

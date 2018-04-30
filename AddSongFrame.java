@@ -12,7 +12,7 @@ public class AddSongFrame extends JFrame
 	private JTextField songfilePath;
 	private JTextField coverartPath; 
 	private JTextField inputUsername;
-	private String username;
+	String username;
 	
 	// buttons
 	private JButton addSong;
@@ -69,6 +69,8 @@ public class AddSongFrame extends JFrame
 		// adds song with the info provided to the playlist
 		class AddSongAL implements ActionListener {
 			public void actionPerformed (ActionEvent a) {
+				// get username input
+				username = inputUsername.getText();
 				// get the text entered in each field in Song
 				String title = songTitle.getText();
 				String artist = artistName.getText();
@@ -115,8 +117,6 @@ public class AddSongFrame extends JFrame
 		// add this panel to the content pane
 		cPane.add(BorderLayout.SOUTH,buttons);
 		
-		// get username input
-		username = inputUsername.getText();
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
