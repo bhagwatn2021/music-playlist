@@ -11,7 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-class TextWindow extends JLabel implements ActionListener, Runnable
+class TextWindow extends JPanel implements ActionListener, Runnable
 {
 	//gets input from playlist
 	JButton send;
@@ -151,14 +151,13 @@ public class PlaylistFrame extends JFrame
 				
 		// show the playlist on the right side of the frame
 		cPane.add(BorderLayout.EAST, list);
-		
-		// filler message that will eventually be received over network
 
 		// show the playlist on the right side of the frame
 		cPane.add(BorderLayout.EAST, list);
 		
 		
 		JPanel songPanel = new JPanel();
+		songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
 		// button to play ALL the songs in the playlist
 		playAll = new JButton("Play All");
 		// local class definition for the Action Listener for play
@@ -212,7 +211,7 @@ public class PlaylistFrame extends JFrame
 				}
 
 				// if at the end
-				if (currSong==null) {
+				if (currSong.next==null) {
 					// go back to the beginning
 					currSong = playlist.head;
 				}
@@ -328,19 +327,18 @@ public class PlaylistFrame extends JFrame
 		playButtons.add(playNext);
 		playButtons.add(playRandom);
 		playButtons.add(goToAdd);
+		
 		// new panel to put all buttons and message at the bottom
 		south = new JPanel();
 		// give the south panel a Box Layout
 		south.setLayout(new BoxLayout(south,BoxLayout.Y_AXIS));
 		// add play buttons to south panel
 		south.add(playButtons);
-		// add "go back" button to south panel
-
+		
+		// add song information panel to south panel
+		
 		// add panel with the message and button to the South area
 		cPane.add(BorderLayout.SOUTH, south);
-		
-		// add the song information to the content pane
-		cPane.add(BorderLayout.NORTH,songPanel);
 		
 		// exit operation
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
