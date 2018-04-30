@@ -1,5 +1,3 @@
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,10 +9,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-class TextWindow extends JPanel implements ActionListener, Runnable
+class TextWindow extends JLabel implements Runnable
 {
 	//gets input from playlist
-	JButton send;
+	String send;
 	//gets output for user
 	JTextArea textArea;
 	//connect to server
@@ -36,7 +34,7 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
-		g.drawString(receiveUsername + " is listening to " + receiveTitle + " by " + receiveArtist, 50, 20);
+	//	g.drawString(receiveUsername + " is listening to " + receiveTitle + " by " + receiveArtist, 50, 20);
 	}
 	
 	public void go(String username, String title, String artist)
@@ -48,10 +46,10 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 		this.sendTitle = title;
 		this.sendArtist = artist;
 		//initialize the textfield to write to server and give it an actionlistener to look for input
-		send = new JButton("Send song data to server");
-		send.addActionListener(this);
+		send = this.sendUsername + "," + this.sendTitle + "," + this.sendArtist;
 		// make visible
 		this.setVisible(true);
+		send(send);
 	}
 	
 	public void setUpNetworking()
@@ -59,7 +57,7 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 		try
 		{
 			//initialize the socket
-			sock = new Socket("127.0.0.1",8000);
+			sock = new Socket("127.0.0.1",3000);
 			//initialize the from the server
 			isr = new InputStreamReader(sock.getInputStream());
 			reader = new BufferedReader(isr);
@@ -96,10 +94,10 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 		catch(IOException e) {}
 	}
 	
-	public void actionPerformed(ActionEvent e)
+	public void send(String message)
 	{
 		//if input given, write output to server
-		writer.println(this.sendUsername + "," + this.sendTitle + "," + this.sendArtist);
+		writer.println(message);
 		writer.flush();
 	}
 	
@@ -109,7 +107,8 @@ class TextWindow extends JPanel implements ActionListener, Runnable
 public class PlaylistFrame extends JFrame
 {
 	private JButton goToAdd,playAll, playNext, playRandom;
-	private JLabel received, songInfo;
+	private TextWindow received;
+	private JLabel songInfo;
 	private JPanel south, playButtons;
 	private ListNode currSong;
 	private String songMessage;
@@ -129,20 +128,29 @@ public class PlaylistFrame extends JFrame
 		// start current song at the front of playlist
 		currSong = playlist.head;
 	
+		JPanel songPanel = new JPanel();
+		songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
+		
 		// initialize songInfo
 		songInfo = new JLabel();
-
+		songPanel.add(songInfo);
 		// show the first song information
 		setSongInfo(playlist);
 
-		TextWindow received = new TextWindow();
+		received = new TextWindow();
+		
 		received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+		
 		Thread t = new Thread(received);
 		t.start();
 		
+		songPanel.add(received);
 		// show the first song's album cover
 		cover = new AlbumImage(currSong.song);
 		
+		// add song information panel to the north of the frame
+		cPane.add(BorderLayout.NORTH,songPanel);
+				
 		// play the first song
 		playSong(playlist);
 		
@@ -156,8 +164,6 @@ public class PlaylistFrame extends JFrame
 		cPane.add(BorderLayout.EAST, list);
 		
 		
-		JPanel songPanel = new JPanel();
-		songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
 		// button to play ALL the songs in the playlist
 		playAll = new JButton("Play All");
 		// local class definition for the Action Listener for play
@@ -172,19 +178,18 @@ public class PlaylistFrame extends JFrame
 				while (currSong != null) {
 					// change current song info
 					received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
-					Thread t = new Thread(received);
-					t.start();
+				/*	Thread t = new Thread(received);
+					t.start(); */
 					
 					// change current song info
-					songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
-					songPanel.add(songInfo);
-					songPanel.add(received);
 					setSongInfo(playlist);
+
 					// change current image
 					cPane.remove(cover);
 					cover = new AlbumImage(currSong.song);
 					cover.repaint();
-					songPanel.repaint();
+					songInfo.repaint();
+					received.repaint();
 					// add new image to panel
 					cPane.add(BorderLayout.CENTER,cover);
 					// play the song in currNode
@@ -211,22 +216,19 @@ public class PlaylistFrame extends JFrame
 				}
 
 				// if at the end
-				if (currSong.next==null) {
+				if (currSong == playlist.tail) {
 					// go back to the beginning
 					currSong = playlist.head;
 				}
 
-				// move currSong to the next song
-				currSong = currSong.next;
-				
-				received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
-				Thread t = new Thread(received);
-				t.start();
+				else{
+					// move currSong to the next song
+					currSong = currSong.next;
+				}
 				
 				// change current song info
-				songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
-				songPanel.add(songInfo);
-				songPanel.add(received);
+				received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+
 				setSongInfo(playlist);
 
 				// change current song info
@@ -237,7 +239,8 @@ public class PlaylistFrame extends JFrame
 				// change current image
 				cover = new AlbumImage(currSong.song);
 				cover.repaint();
-				songPanel.repaint();
+				songInfo.repaint();
+				received.repaint();
 				// add picture to the panel
 				cPane.add(BorderLayout.CENTER,cover);
 				// play the song
@@ -273,14 +276,9 @@ public class PlaylistFrame extends JFrame
 					currSong = playlist.head;
 				}
 				received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
-				Thread t = new Thread(received);
-				t.start();
 				
 				// change current song info
 				setSongInfo(playlist);
-				songPanel.setLayout(new BoxLayout(songPanel,BoxLayout.Y_AXIS));
-				songPanel.add(songInfo);
-				songPanel.add(received);
 
 				// change current song info
 				setSongInfo(playlist);
@@ -290,7 +288,8 @@ public class PlaylistFrame extends JFrame
 				// change current image
 				cover = new AlbumImage(currSong.song);
 				cover.repaint();
-				songPanel.repaint();
+				songInfo.repaint();
+				received.repaint();
 				// add picture to the panel
 				cPane.add(BorderLayout.CENTER,cover);
 				// play the song
@@ -334,8 +333,6 @@ public class PlaylistFrame extends JFrame
 		south.setLayout(new BoxLayout(south,BoxLayout.Y_AXIS));
 		// add play buttons to south panel
 		south.add(playButtons);
-		
-		// add song information panel to south panel
 		
 		// add panel with the message and button to the South area
 		cPane.add(BorderLayout.SOUTH, south);
