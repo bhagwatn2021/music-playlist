@@ -5,8 +5,9 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import javax.swing.*;
 
-public class TextWindowServer extends JPanel implements Runnable, ActionListener{
-	JTextField text;
+public class TextWindowServer extends JPanel implements Runnable{
+	
+	String songInfo;
 	InputStreamReader isr;
 	OutputStreamWriter outWriter;
 	BufferedReader reader;
@@ -18,8 +19,7 @@ public class TextWindowServer extends JPanel implements Runnable, ActionListener
 	
 	public void go()
 	{
-		text = new JTextField();
-		text.addActionListener(this);
+	//	text.addActionListener(this);
 		setUpNetworking();	
 	}
 	public void setUpNetworking()
@@ -47,17 +47,18 @@ public class TextWindowServer extends JPanel implements Runnable, ActionListener
 			while(reader.readLine() != null)
 			{
 				System.out.println("Receiving " + reader.readLine());
-				text.setText(reader.readLine());
-
+				songInfo = reader.readLine();
+				
 				if(connected)
 				{
-					System.out.println("Sending " + text.getText());
-					writer.println(text.getText());
+					System.out.println("Sending " + songInfo);
+					writer.println(songInfo);
 					writer.flush();
 				}
 				else
 				{
 					System.out.println("The server has not established a connection yet.");
+				
 				}
 			}
 		}
@@ -66,16 +67,10 @@ public class TextWindowServer extends JPanel implements Runnable, ActionListener
 			e.printStackTrace();
 		}
 	}
-	public void actionPerformed(ActionEvent a)
+/*	public void actionPerformed(ActionEvent a)
 	{
-		try
-		{
-			while(reader.readLine() != null)
-			{
-				System.out.println("Receiving " + reader.readLine());
-				text.setText(reader.readLine());
-
-				if(connected)
+	
+			if(connected)
 				{
 					System.out.println("Sending " + text.getText());
 					writer.println(text.getText());
@@ -84,14 +79,9 @@ public class TextWindowServer extends JPanel implements Runnable, ActionListener
 				else
 				{
 					System.out.println("The server has not established a connection yet.");
+				
 				}
-			}
-		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
+	} */
 	public static void main(String[] args)
 	{
 		TextWindowServer win = new TextWindowServer();

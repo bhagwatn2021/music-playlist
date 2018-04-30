@@ -13,37 +13,60 @@ import java.net.Socket;
 
 class TextWindow extends JLabel implements ActionListener, Runnable
 {
-	JTextField text;
+	//gets input from playlist
+	JButton send;
+	//gets output for user
 	JTextArea textArea;
+	//connect to server
 	Socket sock;
+	//get input from server
 	InputStreamReader isr;
+	//send output to server
 	OutputStreamWriter outWriter;
+	//read input from server
 	BufferedReader reader;
+	//write output to server
 	PrintWriter writer;
+	//array of strings to store info for songs
 	String[] songData; 
-	private String title;
-	private String artist; 
-	private String username;
+	//information of songs (to be stored in songData)
+	private String sendTitle, sendArtist, sendUsername;
+	private String receiveTitle, receiveArtist, receiveUsername;
+	
+	public void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+		g.drawString(receiveUsername + " is listening to " + receiveTitle + " by " + receiveArtist, 50, 20);
+	}
 	
 	public void go(String username, String title, String artist)
 	{
+		//call to set up the connection to server
 		setUpNetworking();
-		this.username = username;
-		this.title = title;
-		this.artist = artist;
-		text = new JTextField(username + "," + title + "," + artist);
-		text.addActionListener(this);
+		//initialize instance variables
+		this.sendUsername = username;
+		this.sendTitle = title;
+		this.sendArtist = artist;
+		//initialize the textfield to write to server and give it an actionlistener to look for input
+		send = new JButton("Send song data to server");
+		send.addActionListener(this);
+		// make visible
+		this.setVisible(true);
 	}
 	
 	public void setUpNetworking()
 	{
 		try
 		{
+			//initialize the socket
 			sock = new Socket("127.0.0.1",8000);
+			//initialize the from the server
 			isr = new InputStreamReader(sock.getInputStream());
 			reader = new BufferedReader(isr);
+			//initialize the writer to the server
 			writer = new PrintWriter(sock.getOutputStream());
 		}
+		//catch an exception
 		catch (IOException e)
 		{
 			e.printStackTrace();
@@ -52,22 +75,31 @@ class TextWindow extends JLabel implements ActionListener, Runnable
 	
 	public void run() {
 		try {
+			//split the message from the server into an array of song informaton (username, title, artist)
 			songData =reader.readLine().split(" ",3);
 			while(reader.readLine() != null){
-				this.username = songData[0];
-				this.title = songData[1];
-				this.artist = songData[2];
+			//set the first value into the array to the username, the second value to the title, and the third to the artist of a song
+				this.receiveUsername = songData[0];
+				this.receiveTitle = songData[1];
+				this.receiveArtist = songData[2];
+				//continue to take input
 				songData = reader.readLine().split(",", 3);
+				//initialize the text area to display server input
 				textArea = new JTextArea();
-				this.textArea.setText(username +" is listening to " + title + " by " +  artist);
+				this.textArea.setText(receiveUsername +" is listening to " + receiveTitle + " by " +  receiveArtist);
 				this.add(textArea);
+				this.repaint();
+				songData =reader.readLine().split(" ",3);
 			}
-		} catch(IOException e) {}
+		}
+		//catch an exception
+		catch(IOException e) {}
 	}
 	
 	public void actionPerformed(ActionEvent e)
 	{
-		writer.println(text.getText());
+		//if input given, write output to server
+		writer.println(this.sendUsername + "," + this.sendTitle + "," + this.sendArtist);
 		writer.flush();
 	}
 	
@@ -83,7 +115,7 @@ public class PlaylistFrame extends JFrame
 	private JLabel received;
 	private JPanel south;
 	private JPanel playButtons;
-	private JTextArea songInfo;
+	private JLabel songInfo;
 	private ListNode currSong;
 	private String songMessage;
 	private AlbumImage cover;
@@ -103,7 +135,7 @@ public class PlaylistFrame extends JFrame
 		currSong = playlist.head;
 	
 		// initialize songInfo
-		songInfo = new JTextArea();
+		songInfo = new JLabel();
 
 		// show the first song information
 		setSongInfo(playlist);
@@ -115,8 +147,9 @@ public class PlaylistFrame extends JFrame
 		
 		// show the first song's album cover
 		cover = new AlbumImage(currSong.song);
+		
 		// play the first song
-		currSong.song.play();
+		playSong(playlist);
 		
 		// add the album cover to the content pane
 		cPane.add(BorderLayout.CENTER,cover);
@@ -156,11 +189,12 @@ public class PlaylistFrame extends JFrame
 					// change current image
 					cPane.remove(cover);
 					cover = new AlbumImage(currSong.song);
-					repaint();
+					cover.repaint();
+					songPanel.repaint();
 					// add new image to panel
 					cPane.add(BorderLayout.CENTER,cover);
 					// play the song in currNode
-					currSong.song.play();
+					playSong(playlist);
 					// advance currSong
 					currSong = currSong.next;
 				}
@@ -208,11 +242,12 @@ public class PlaylistFrame extends JFrame
 
 				// change current image
 				cover = new AlbumImage(currSong.song);
-				repaint();
+				cover.repaint();
+				songPanel.repaint();
 				// add picture to the panel
 				cPane.add(BorderLayout.CENTER,cover);
 				// play the song
-				currSong.song.play();
+				playSong(playlist);
 			}
 		}
 		// create the action listener
@@ -260,11 +295,12 @@ public class PlaylistFrame extends JFrame
 
 				// change current image
 				cover = new AlbumImage(currSong.song);
-				repaint();
+				cover.repaint();
+				songPanel.repaint();
 				// add picture to the panel
 				cPane.add(BorderLayout.CENTER,cover);
 				// play the song
-				currSong.song.play();
+				playSong(playlist);
 			}
 		}
 		// create the action listener
@@ -305,6 +341,7 @@ public class PlaylistFrame extends JFrame
 		south.add(playButtons);
 		// add "go back" button to south panel
 		south.add(goToAdd);
+		south.add(songPanel);
 		// add panel with the message and button to the South area
 		cPane.add(BorderLayout.SOUTH, south);
 		

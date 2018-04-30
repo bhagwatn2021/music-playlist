@@ -8,6 +8,7 @@ public class AlbumImage extends JPanel
 	
 	public void paintComponent (Graphics g)
 	{
+		super.paintComponent(g);
 		Image pic = new ImageIcon(song.getImagePath(), "cover").getImage();
 		g.drawImage(pic, 0,0, this);
 	}
