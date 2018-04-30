@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 
-class TextWindow extends JLabel implements Runnable
+class TextWindow implements Runnable
 {
 	//gets input from playlist
 	String sendSong;
@@ -23,14 +23,8 @@ class TextWindow extends JLabel implements Runnable
 	//array of strings to store info for songs
 	String[] songData; 
 	//information of songs (to be stored in songData)
-	private String sendTitle, sendArtist, sendUsername;
-	private String receiveTitle, receiveArtist, receiveUsername;
-	
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-	//	g.drawString(receiveUsername + " is listening to " + receiveTitle + " by " + receiveArtist, 50, 20);
-	}
+	private String sendTitle, sendArtist, sendUsername, sendAlbum;
+	private String receiveTitle, receiveArtist, receiveUsername, receiveAlbum;
 	
 	public void go(String username, String title, String artist)
 	{
@@ -41,9 +35,8 @@ class TextWindow extends JLabel implements Runnable
 		this.sendTitle = title;
 		this.sendArtist = artist;
 		//initialize the textfield to write to server and give it an actionlistener to look for input
-		sendSong = this.sendUsername + "," + this.sendTitle + "," + this.sendArtist;
+		sendSong = this.sendUsername + "," + this.sendTitle + "," + this.sendArtist + "," + this.sendAlbum ;
 		// make visible
-		this.setVisible(true);
 		System.out.println(sendSong);
 		send(sendSong);
 	}
@@ -76,13 +69,11 @@ class TextWindow extends JLabel implements Runnable
 				this.receiveUsername = songData[0];
 				this.receiveTitle = songData[1];
 				this.receiveArtist = songData[2];
-				//continue to take input
-				songData = reader.readLine().split(",", 3);
+				this.receiveAlbum = songData[3];
+	
 				//initialize the text area to display server input
 				textArea = new JTextArea();
-				this.textArea.setText(receiveUsername +" is listening to " + receiveTitle + " by " +  receiveArtist);
-				this.add(textArea);
-				this.repaint();
+				this.textArea.append(receiveUsername +" is listening to " + receiveTitle + " by " +  receiveArtist + " of album " + receiveUsername + "\n");
 				songData =reader.readLine().split(" ",3);
 			}
 		}
@@ -104,7 +95,7 @@ class TextWindow extends JLabel implements Runnable
 public class PlaylistFrame extends JFrame
 {
 	private JButton goToAdd,playAll, playNext, playRandom;
-	private TextWindow received;
+	private JTextArea received;
 	private JLabel songInfo;
 	private JPanel south, playButtons;
 	private ListNode currSong;
@@ -134,11 +125,13 @@ public class PlaylistFrame extends JFrame
 		// show the first song information
 		setSongInfo(playlist);
 
-		received = new TextWindow();
+		TextWindow client = new TextWindow();
 		
-		received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+		received = client.textArea;
 		
-		Thread t = new Thread(received);
+		client.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+		
+		Thread t = new Thread(client);
 		t.start();
 		
 		songPanel.add(received);
@@ -174,7 +167,7 @@ public class PlaylistFrame extends JFrame
 				currSong = playlist.head;
 				while (currSong != null) {
 					// change current song info
-					received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+					client.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 				/*	Thread t = new Thread(received);
 					t.start(); */
 					
@@ -224,7 +217,7 @@ public class PlaylistFrame extends JFrame
 				}
 				
 				// change current song info
-				received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+				client.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 
 				setSongInfo(playlist);
 
@@ -272,7 +265,7 @@ public class PlaylistFrame extends JFrame
 					// go back to the beginning
 					currSong = playlist.head;
 				}
-				received.go(username,currSong.song.getTitle(),currSong.song.getArtist());
+				client.go(username,currSong.song.getTitle(),currSong.song.getArtist());
 				
 				// change current song info
 				setSongInfo(playlist);

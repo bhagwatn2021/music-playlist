@@ -24,3 +24,13 @@
 /ThreadExample.class
 /EchoThread.class
 /ClientThread.class
+/PlaylistFrameServer.class
+/PlaylistFrameServer$1AddMoreAL.class
+/PlaylistFrameServer$1PlayAllAL.class
+/PlaylistFrameServer$1PlayNextAL.class
+/PlaylistFrameServer$1PlayRandomAL.class
+/AddSongFrameServer.class
+/AddSongFrameServer$1AddSongAL.class
+/AddSongFrameServer$1GoToPlaylistAL.class
+/AddSongFrameServer$1AddSongALServer.class
+/AddSongFrameServer$1GoToPlaylistALServer.class
