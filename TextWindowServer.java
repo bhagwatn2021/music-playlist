@@ -6,7 +6,7 @@ import java.io.*;
 import javax.swing.*;
 
 //From StackOverflow: @Piotr Kochański
-class MyThread extends Thread {
+class ClientThread extends Thread {
 	String songInfo;
 	InputStreamReader isr;
 	OutputStreamWriter outWriter;
@@ -16,7 +16,7 @@ class MyThread extends Thread {
 	ServerSocket serverSock;
 	boolean connected = false;
 	
-    public MyThread(Socket clientSocket) {
+    public ClientThread(Socket clientSocket) {
         this.clientConn = clientSocket;
     }
 
@@ -85,7 +85,7 @@ public class TextWindowServer extends JPanel implements Runnable{
 	                System.out.println("I/O error: " + e);
 	            }
 	            // new thread for a client
-	            new MyThread(clientConn).start();
+	            new ClientThread(clientConn).start();
 	        }
 	    }
 	
